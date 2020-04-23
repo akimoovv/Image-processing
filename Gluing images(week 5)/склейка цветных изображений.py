@@ -35,7 +35,7 @@ def gluing(img1,img2,mask):
             return np.clip(res, 0, 255)
     
     
-        array = np.array(f(0.66))
+        array = np.array(f(0.33))
         img = gauss_filter(img,array)
         return img
 
@@ -139,7 +139,6 @@ for i in range(mask.shape[0]):
         mask[i,j][0] = 0
         mask[i,j][1] = 0
         mask[i,j][2] = 0
-   
    
    
 a1 = img1[:,:,0]
