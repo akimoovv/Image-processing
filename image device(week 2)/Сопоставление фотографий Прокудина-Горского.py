@@ -1,47 +1,52 @@
-import numpy
+import numpy as np
 
-def align(image, green_point):
-    row_g, col_g = green_point
-    img = img_as_float(image)
-    rows, _ = img.shape
-    delta = rows // 3
-
-    # sizes of parts
-    b_rows = 0, delta
-    g_rows = delta, 2 * delta
-    r_rows = 2 * delta, 3 * delta
-    
-    def cut_percents(img, percents: float):
-        rows, columns = img.shape
-        t_rows, t_columns = int(rows * percents), int(columns * percents)
-        return img[t_rows:rows - t_rows, t_columns:columns - t_columns]
-    
-    percents = 0.1
-    r = cut_percents(img[r_rows[0]:r_rows[1]], percents)
-    g = cut_percents(img[g_rows[0]:g_rows[1]], percents)
-    b = cut_percents(img[b_rows[0]:b_rows[1]], percents)
-    
-    def find_best_shift(fixed_channel, movable_channel):
-        best_row_shift, best_col_shift = -15, -15
-        best_corr = 0
-        roll_range = range(-15, 16)
+def find(channel1, channel2):
+    l, r = -15, -15
+    max_corr = 0
         
-        for col_shift in roll_range:
-            for row_shift in roll_range:
-                tmp = numpy.roll(movable_channel, row_shift, axis=0)
-                tmp = numpy.roll(tmp, col_shift, axis=1)
-                correlation = (tmp * fixed_channel).sum()
-                if correlation > best_corr:
-                    best_col_shift = col_shift
-                    best_row_shift = row_shift
-                    best_corr = correlation
+    for i in range(-15,16):
+        for j in range(-15,16):
+            tmp = np.roll(channel2, j, axis=0)
+            tmp = np.roll(tmp, i, axis=1)
+            corr = (tmp * channel1).sum()
+            if corr > max_corr:
+                r = i
+                l = j
+                max_corr = corr
         
-        return best_row_shift, best_col_shift
+    return l, r
 
-    roll_b_row, roll_b_col = find_best_shift(g, movable_channel=b)
-    roll_r_row, roll_r_col = find_best_shift(g, movable_channel=r)
+def cut_img(img, k):
+    x, y = img.shape
+    t_x, t_y = int(x * k), int(y * k)
+    return img[t_x:x - t_x, t_y:y - t_y]
+
+
+def align(img, g_coord):
+    row_g, col_g = g_coord
+    img = img_as_float(img)
+
+    rows = img.shape[0] 
+    n = rows // 3
+
+    b_row = 0, n
+    g_row = n, 2 * n
+    r_row = 2 * n, 3 * n
+        
+    #Обрезаем изображения (10%)
+    b = cut_img(img[b_row[0]:b_row[1]], 0.1)
+    g = cut_img(img[g_row[0]:g_row[1]], 0.1)
+    r = cut_img(img[r_row[0]:r_row[1]], 0.1)
+   
     
-    blue = row_g - delta - roll_b_row, col_g - roll_b_col
-    red = row_g + delta - roll_r_row, col_g - roll_r_col
+    b_row_new, b_col_new = find(g, b) #запоминаем сдвиги вертикали с наибольщей похожестью
+    r_row_new, r_col_new = find(g, r)
     
-    return blue, red 
+    
+    row_b, col_b = row_g - n - b_row_new, col_g - b_col_new
+    row_r, col_r = row_g + n - r_row_new, col_g - r_col_new
+    return (row_b, col_b), (row_r, col_r)
+
+
+
+
