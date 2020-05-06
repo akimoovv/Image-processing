@@ -8,7 +8,7 @@ def decode(y,Cb_coded,Cr_coded):
         slice_i = slice(i * 2, i * 2 + 2)
         
         for j in range(Cb_coded.shape[1]):
-            slice_j = slice(i * 2, i * 2 + 2)
+            slice_j = slice(j * 2, j * 2 + 2)
             
             Cb[slice_i,slice_j] = Cb_coded[i,j]
             Cr[slice_i,slice_j] = Cr_coded[i,j]
@@ -17,10 +17,9 @@ def decode(y,Cb_coded,Cr_coded):
     
     r = y + 1.402 * (Cr - 0.5)
     g = y - 0.34414 * (Cb - 0.5) - 0.71414 * (Cr - 0.5)
-    b = y + 1.772 * (Cb - 0.5)  
+    b = y + 1.772 * (Cb - 0.5)   
     
-    
-    img = np.dstack((y,Cb,Cr))
+    img = np.dstack((r,g,b))
     img = np.clip(img,0,1)
     img = img_as_ubyte(img)
     
