@@ -1,9 +1,9 @@
+#В данном репозитории описаны только функции, считающие энтропию и mse. Без результатов.
+
 from skimage.io import imread, imshow, imsave
 from skimage import img_as_float, img_as_ubyte
 from numpy import histogram
 import numpy as np
-
-
 
 
 
@@ -26,3 +26,4 @@ def mse(img1,img2):
     Q = (h2*1.0)/img2.size
     MSE = (((P - Q) **2).sum()) / len(P)
     return MSE
+
