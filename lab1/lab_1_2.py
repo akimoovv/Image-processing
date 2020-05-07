@@ -59,3 +59,9 @@ def decode(y,Cb_in,Cr_in):
 img = imread('img.png')
 y,cb,cr = code(img)
 res = decode(y,cb,cr)
+
+imshow(img)
+imshow(res)
+np.array_equal(img,res)
+
+imsave('decimial.png', res)
